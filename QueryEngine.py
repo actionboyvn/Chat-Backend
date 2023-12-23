@@ -3,8 +3,15 @@ import openai
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
+# Check if the app is running in Azure or locally
+if 'WEBSITE_HOSTNAME' in os.environ:
+    # Running in Azure, environment variables are already set
+    pass
+else:
+    # Running locally, load environment variables from .env file
+    from dotenv import load_dotenv
+    load_dotenv()
+    
 openai.api_type = os.getenv("OPENAI_API_TYPE")
 openai.api_version = os.getenv("OPENAI_API_VERSION")
 openai.api_base = os.getenv("OPENAI_API_BASE")
