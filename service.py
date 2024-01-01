@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from typing import List
 import QueryEngine
+import ImageAgent
 
 app = FastAPI()
 
@@ -38,10 +39,16 @@ class Message(BaseModel):
 class Conversation(BaseModel):
     conversation: List[Message]
 
+class ImagePrompt(BaseModel):
+    content: str
+
 @app.post("/assistant_service/get_response")
 async def get_response(conversation: Conversation = Body(...)):
     return await QueryEngine.query(jsonable_encoder(conversation))
 
+@app.post("/assistant_service/generate_image")
+async def get_response(prompt: ImagePrompt = Body(...)):
+    return await ImageAgent.generate(jsonable_encoder(prompt))
 
 if __name__ == '__main__':
     import uvicorn
