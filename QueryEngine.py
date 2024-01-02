@@ -28,14 +28,9 @@ def num_tokens_from_messages(messages):
     return num_tokens
 
 async def query(func_sig, conv):
-    standardized_conv = [
-        {"role": msg["role"], "content": msg["content"]}
-        for msg in conv
-        if not ("function" in msg and msg["function"] == "generate_image")
-    ]
+    standardized_conv = [{"role": msg["role"], "content": msg["content"]} for msg in conv]
     messages = [{"role": "system", "content": "You are a helpful assistant, your name is Baymax."}]
     messages.extend(standardized_conv)
-
     user_query = messages[-1]["content"]
 
     if (func_sig == "generate_image"):        

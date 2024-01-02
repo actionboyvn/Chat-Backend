@@ -31,11 +31,11 @@ async def get_response(sid, conversation, func_sig=None):
     conv = jsonable_encoder(conversation)
     if (func_sig == None):
         func_sig = Functions.get_function(conv[-1]['content'])
-    await sio.emit('get_response_option', {'function': func_sig})
+    await sio.emit('get_response_option', {'function': func_sig}, room=sid)
 
     async def query_and_emit():
         response = await QueryEngine.query(func_sig, conv)
-        await sio.emit('get_response_callback', response)
+        await sio.emit('get_response_callback', response, room=sid)
     asyncio.create_task(query_and_emit())
 
 if __name__ == '__main__':
