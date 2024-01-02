@@ -2,7 +2,6 @@ import tiktoken
 import openai
 from dotenv import load_dotenv
 import os
-import Functions
 import ImageAgent
 
 load_dotenv()
@@ -28,15 +27,14 @@ def num_tokens_from_messages(messages):
     num_tokens += 2
     return num_tokens
 
-async def query(conv):
+async def query(func_sig, conv):
+    standardized_conv = [{"role": msg["role"], "content": msg["content"]} for msg in conv]
     messages = [{"role": "system", "content": "You are a helpful assistant, your name is Baymax."}]
-    messages.extend(conv["conversation"])
+    messages.extend(standardized_conv)
 
     user_query = messages[-1]["content"]
 
-    func_sig = Functions.get_function(user_query)
-
-    if (func_sig == "generate_image"):
+    if (func_sig == "generate_image"):        
         return await ImageAgent.generate(user_query)
 
     messages.append({"role": "user", "content": user_query})

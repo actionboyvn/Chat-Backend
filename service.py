@@ -1,16 +1,14 @@
-from fastapi import Body, FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
-from typing import List
+import Functions
 import QueryEngine
-import ImageAgent
+import socketio
+from socket_manager import sio
+import asyncio
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,39 +16,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app = socketio.ASGIApp(sio, other_asgi_app=app)
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"error_details": exc.errors(), "example_request": {
-            "conversation": [
-                {"role": "system", "content": "You an a helpful assistant."},
-                {"role": "assistant", "content": "How can I help today?"},
-                {"role": "user", "content": "What is a PESEL number?"}
-            ]
-        }}),
-    )
+@sio.event
+async def connect(sid, environ):
+    print('Connected', sid)
 
-class Message(BaseModel):
-    role: str
-    content: str
+@sio.event
+async def disconnect(sid):
+    print('Disconnected', sid)
 
-class Conversation(BaseModel):
-    conversation: List[Message]
+@sio.event
+async def get_response(sid, conversation, func_sig=None):
+    conv = jsonable_encoder(conversation)
+    if (func_sig == None):
+        func_sig = Functions.get_function(conv[-1]['content'])
+    await sio.emit('get_response_option', {'function': func_sig})
 
-class ImagePrompt(BaseModel):
-    content: str
-
-@app.post("/assistant_service/get_response")
-async def get_response(conversation: Conversation = Body(...)):
-    return await QueryEngine.query(jsonable_encoder(conversation))
-
-@app.post("/assistant_service/generate_image")
-async def get_response(prompt: ImagePrompt = Body(...)):
-    return await ImageAgent.generate(jsonable_encoder(prompt)['content'])
+    async def query_and_emit():
+        response = await QueryEngine.query(func_sig, conv)
+        await sio.emit('get_response_callback', response)
+    asyncio.create_task(query_and_emit())
 
 if __name__ == '__main__':
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8111)
