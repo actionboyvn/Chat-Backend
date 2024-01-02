@@ -17,10 +17,9 @@ driver.get("https://sdxlturbo.ai/")
 element = driver.find_element(By.NAME, "prompt")
 
 async def generate(prompt):
-    element.clear()
-    time.sleep(random.uniform(1, 3))
+    element.clear()    
     element.send_keys(prompt)
-    time.sleep(5)
+    time.sleep(4)
     try:
         image_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, '//img[@alt="Generated"]'))
@@ -29,6 +28,6 @@ async def generate(prompt):
         src_value = image.get_attribute('src')
         print(src_value)
         return {"function": "generate_image", 
-                "source": src_value}
+                "source": src_value or ""}
     except Exception:
         print("Image not found in the given time.")
