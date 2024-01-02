@@ -48,9 +48,9 @@ async def get_response(conversation: Conversation = Body(...)):
 
 @app.post("/assistant_service/generate_image")
 async def get_response(prompt: ImagePrompt = Body(...)):
-    return await ImageAgent.generate(jsonable_encoder(prompt))
+    return await ImageAgent.generate(jsonable_encoder(prompt)['content'])
 
 if __name__ == '__main__':
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8085)
+    uvicorn.run(app, host="0.0.0.0", port=8111)

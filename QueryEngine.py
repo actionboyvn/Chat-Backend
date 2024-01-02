@@ -2,6 +2,8 @@ import tiktoken
 import openai
 from dotenv import load_dotenv
 import os
+import Functions
+import ImageAgent
 
 load_dotenv()
 
@@ -32,6 +34,11 @@ async def query(conv):
 
     user_query = messages[-1]["content"]
 
+    func_sig = Functions.get_function(user_query)
+
+    if (func_sig == "generate_image"):
+        return await ImageAgent.generate(user_query)
+
     messages.append({"role": "user", "content": user_query})
     
     conv_history_tokens = num_tokens_from_messages(messages)
@@ -49,4 +56,5 @@ async def query(conv):
 
     returned_response = response['choices'][0]['message']['content']
     
-    return {"response": returned_response}
+    return {"function": func_sig,
+            "response": returned_response}

@@ -19,7 +19,7 @@ element = driver.find_element(By.NAME, "prompt")
 async def generate(prompt):
     element.clear()
     time.sleep(random.uniform(1, 3))
-    element.send_keys(prompt["content"])
+    element.send_keys(prompt)
     time.sleep(5)
     try:
         image_element = WebDriverWait(driver, 5).until(
@@ -28,6 +28,7 @@ async def generate(prompt):
         image = driver.find_element(By.CSS_SELECTOR, 'img[alt="Generated"]')
         src_value = image.get_attribute('src')
         print(src_value)
-        return {"source": src_value}
+        return {"function": "generate_image", 
+                "source": src_value}
     except Exception:
         print("Image not found in the given time.")
