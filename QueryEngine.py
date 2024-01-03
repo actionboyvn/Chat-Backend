@@ -27,14 +27,14 @@ def num_tokens_from_messages(messages):
     num_tokens += 2
     return num_tokens
 
-async def query(func_sig, conv):
+async def query(func_sig, conv, sid):
     standardized_conv = [{"role": msg["role"], "content": msg["content"]} for msg in conv]
     messages = [{"role": "system", "content": "You are a helpful assistant, your name is Baymax."}]
     messages.extend(standardized_conv)
     user_query = messages[-1]["content"]
 
     if (func_sig == "generate_image"):        
-        return await ImageAgent.generate(user_query)
+        return await ImageAgent.generate(user_query, sid)
 
     messages.append({"role": "user", "content": user_query})
     
