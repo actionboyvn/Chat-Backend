@@ -19,9 +19,7 @@ driver.get("https://sdxlturbo.ai/")
 element = driver.find_element(By.NAME, "prompt")
 
 async def generate(prompt, sid):
-    await asyncio.sleep(1) 
-    await sio.emit('get_response_info', "Creating a prompt", room=sid)
-    await asyncio.sleep(1) 
+    await asyncio.sleep(1.5) 
     await sio.emit('get_response_info', "Generating", room=sid)        
 
     element.clear()    
