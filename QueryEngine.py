@@ -35,6 +35,9 @@ async def query(func_sig, conv, sid):
 
     if (func_sig == "generate_image"):        
         return await ImageAgent.generate(user_query, sid)
+    
+    if (func_sig == "find_similar_images"):
+        return await ImageAgent.find_similar(user_query, sid)
 
     messages.append({"role": "user", "content": user_query})
     
