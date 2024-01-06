@@ -31,8 +31,7 @@ async def get_response(sid, conversation, func_sig=None):
     conv = jsonable_encoder(conversation)
     if (func_sig == None):
         func_sig = Functions.get_function(conv[-1]['content'])
-    await sio.emit('get_response_option', {'function': func_sig}, room=sid)
-    await asyncio.sleep(0.5)
+    await sio.emit('get_response_option', {'function': func_sig}, room=sid)    
     await sio.emit('get_response_info', "Image request received", room=sid)
 
     async def query_and_emit():
